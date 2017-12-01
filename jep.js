@@ -37,18 +37,18 @@ function showAnswer(element){
 	var answer = fetchAnswer(element[0][0].innerHTML);
 	element
 		.transition().duration(200)
-		.style("background-color","steelblue")
-		.style("color","white");
+		.style("background-color","white")
+		.style("color","gray");
 
 	element[0][0].innerHTML = answer;
 }
 
-function hideAnswer(element){
-	var question = fetchQuestion(element[0][0].innerHTML);
+function showQuestion(element){
+	var question = element.attr('id');
 	element
 		.transition().duration(200)
-		.style("background-color","white")
-		.style("color","gray");
+		.style("background-color","steelblue")
+		.style("color","white");
 
 	element[0][0].innerHTML = question;
 }
@@ -56,8 +56,8 @@ function hideAnswer(element){
 function clickedCell(){
 	console.log(d3.select(this).style("background-color"));
 	//Hackey, this should be changed
-	if(d3.select(this).style("background-color")!=="rgb(255, 255, 255)"){
-		hideAnswer(d3.select(this));
+	if(d3.select(this).style("background-color")=="rgb(255, 255, 255)"){
+		showQuestion(d3.select(this));
 	}
 	else{
 		showAnswer(d3.select(this));
@@ -95,23 +95,25 @@ function buildBoard(gameData){
 
     var rows = table.selectAll(".row")
     					.data(categoryNest)
-    					.enter().append("tr")
-    					.attr("class", "row");
+    					.enter()
+						.append("tr")
+    					.attr("class", "row")
+						.attr("id",function(d,i){return i;});
 
     var cells = rows.selectAll("td")
     	   			.data(function(row) {
             			return categoryNest.map(function(column) {
-            				//console.log(column);
                 			return {column: column.key, value: column.values};
             			});
         			})
         			.enter()
         			.append("td")
         			.attr("class","cell")
-        			.html(function(d,i){
-        				if(d.value.length>0){return d.value.pop()[" Question"];}
-        				else{d3.select(this).remove();}
-        			})
+					.attr("id",function(d,i){
+                        console.log(d.value[0]);
+                        if(d.value.length>0){return d.value.shift()[" Question"];}
+                        else{d3.select(this).remove();}
+					})
         			.on("click",clickedCell);
 }
 
